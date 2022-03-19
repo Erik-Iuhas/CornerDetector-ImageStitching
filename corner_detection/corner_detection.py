@@ -31,9 +31,13 @@ class coner():
 
         #Set all pixels that pass to 1 to find the passing corner values.
         passing_edges = self.threshold_eigen/255
+
+        #Get cordinates of all passing edges
+        non_max_list = np.argwhere(passing_edges > 0)
+
         new_passed_photo = passing_edges * min_eigen
 
-        cords_list = self.non_maximum_suppression(new_passed_photo,filter_size=5)
+        cords_list = self.non_maximum_suppression(new_passed_photo,non_max_list,filter_size=5)
         circle_image = self.add_circles(cords_list)
         print(len(cords_list))
 
@@ -66,7 +70,17 @@ class coner():
 
         return cur_image
 
-    def non_maximum_suppression(self,image, filter_size):
+    def non_maximum_suppression(self,image,non_max_list, filter_size):
+        """_summary_
+
+        Args:
+            image (_type_): _description_
+            non_max_list (_type_): _description_
+            filter_size (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         # Create the blank array for the convolution output.
         conv_image = np.zeros(image.shape)
 
@@ -79,12 +93,13 @@ class coner():
         # Iterate through the image using the kernal 
         brightest_centers = []
         # Iterate through the padded image starting and stopping in the areas of the orignal image.
-        for x in range(pad,  image.shape[1]+pad):
-            for y in range(pad,  image.shape[0]+pad):
-                non_max_filter = padded_image[y-pad :y + pad+1,x-pad :x + pad+1]
-                max_index = np.unravel_index(np.argmax(non_max_filter, axis=None), non_max_filter.shape)
-                if(max_index == (pad,pad)):
-                    brightest_centers.append((x,y))
+        for cords in non_max_list:
+            y = cords[0] + pad
+            x = cords[1] + pad
+            non_max_filter = padded_image[y-pad :y + pad+1,x-pad :x + pad+1]
+            max_index = np.unravel_index(np.argmax(non_max_filter, axis=None), non_max_filter.shape)
+            if(max_index == (pad,pad)):
+                brightest_centers.append((x,y))
                             
         # Return the conv image
         return brightest_centers
