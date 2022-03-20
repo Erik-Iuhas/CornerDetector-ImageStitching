@@ -168,7 +168,7 @@ class coner():
             # if the largest index is (2,2) that means the center pixel is the largest and can pass the non maximum supression test.
             if(max_index == (pad,pad)):
                 # Append cordinates to brightest_centers array.
-                brightest_centers.append((x,y))
+                brightest_centers.append((cords[1],cords[0]))
                             
         # Return the non maximum supression corners 
         return brightest_centers
